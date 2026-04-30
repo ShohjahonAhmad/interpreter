@@ -40,8 +40,6 @@ java src/main/java/org/jetbrains/Main.java
 
 Type your program line by line. When finished, type `quit` on a new line to execute.
 
-Type your program line by line. When finished, type `quit` on a new line to execute it.
-
 ## Language Features
 
 | Feature | Syntax |
