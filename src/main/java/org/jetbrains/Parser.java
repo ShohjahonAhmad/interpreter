@@ -1,5 +1,6 @@
 package org.jetbrains;
 
+import org.jetbrains.exception.ParseException;
 import org.jetbrains.node.*;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class Parser {
     private Token expect(TokenType type) {
         Token token = consume();
         if(token.type != type) {
-            throw new RuntimeException("Expected " + type + " but got" + token.type);
+            throw new ParseException("Expected " + type + " but got" + token.type);
         }
 
         return token;
@@ -38,6 +39,15 @@ public class Parser {
     private Node parsePrimary() {
         if(peek().type == TokenType.NUMBER){
             return new NumberNode(Integer.parseInt(consume().value));
+        } else if(peek().type == TokenType.TRUE){
+            consume();
+            return new NumberNode(1);
+        } else if(peek().type == TokenType.FALSE){
+            consume();
+            return new NumberNode(0);
+        }
+        else if (peek().type == TokenType.IDENTIFIER && peekNext().type == TokenType.L_PAREN) {
+            return parseFuncCall();
         } else if (peek().type == TokenType.IDENTIFIER) {
             return new IdentifierNode(consume().value);
         } else if (peek().type == TokenType.L_PAREN) {
@@ -47,7 +57,7 @@ public class Parser {
             return expr;
         }
 
-        throw new RuntimeException("Unexpected token: " + peek());
+        throw new ParseException("Unexpected token: " + peek());
     }
 
     private Node parseTerm() {
@@ -87,17 +97,28 @@ public class Parser {
     }
 
     private Node parseStatement() {
-        if(peek().type == TokenType.IDENTIFIER && peekNext().type == TokenType.ASSIGN){
-            String name = consume().value;
-            consume();
-            Node expr = parseComparison();
-            return new AssignNode(name, expr);
+        if(peek().type == TokenType.FUN) {
+            return parseFunc();
+        } else if(peek().type == TokenType.IDENTIFIER && peekNext().type == TokenType.ASSIGN){
+            return parseAssign();
+        } else if (peek().type == TokenType.IDENTIFIER && peekNext().type == TokenType.L_PAREN) {
+            return parseFuncCall();
         } else if(peek().type == TokenType.IF){
             return parseIf();
-        }
-        else {
+        } else if(peek().type == TokenType.WHILE) {
+            return parseWhile();
+        } else if (peek().type == TokenType.RETURN){
+            return parseReturn();
+        } else {
             return parseComparison();
         }
+    }
+
+    private Node parseAssign() {
+        String name = consume().value;
+        consume();
+        Node expr = parseComparison();
+        return new AssignNode(name, expr);
     }
 
     private Node parseIf() {
@@ -114,7 +135,70 @@ public class Parser {
         return new IfNode(condition, thenBranch);
     }
 
-    private List<Node> parseProgram() {
+    private Node parseWhile() {
+        consume(); // consume 'while'
+        Node condition = parseComparison();
+        expect(TokenType.DO); // consume 'do'
+        List<Node> body = new ArrayList<>();
+
+        body.add(parseStatement());
+        while (peek().type == TokenType.COMMA){
+            consume(); // consume the comma before parsing next statement
+            body.add(parseStatement());
+        }
+
+        return new WhileNode(condition, body);
+    }
+
+    private Node parseFunc() {
+        consume(); // consume 'func'
+        String name = consume().value;
+        expect(TokenType.L_PAREN); // consume '('
+        List<String> params = new ArrayList<>();
+        if(peek().type != TokenType.R_PAREN){
+            params.add(consume().value);
+            while(peek().type == TokenType.COMMA){
+                consume(); // consume the comma before parsing next parameter
+                params.add(consume().value);
+            }
+        }
+        expect(TokenType.R_PAREN); // consume ')'
+        expect(TokenType.L_BRACE); // consume '{'
+        List<Node> body = new ArrayList<>();
+        if(peek().type != TokenType.R_BRACE){
+            body.add(parseStatement());
+            while (peek().type == TokenType.COMMA){
+                consume(); // consume the comma before parsing next statement
+                body.add(parseStatement());
+            }
+        }
+        expect(TokenType.R_BRACE); // consume '}'
+
+        return new FuncNode(name, params, body);
+    }
+
+    private Node parseReturn() {
+        consume(); // consume 'return'
+        Node value = parseComparison();
+        return new ReturnNode(value);
+    }
+
+    private Node parseFuncCall(){
+        String name = consume().value;
+        consume(); // consume '('
+        List<Node> args = new ArrayList<>();
+        if(peek().type != TokenType.R_PAREN){
+            args.add(parseComparison());
+            while(peek().type == TokenType.COMMA) {
+                consume(); // consume the comma before parsing next argument
+                args.add(parseComparison());
+            }
+        }
+        expect(TokenType.R_PAREN); // consume ')'
+        return new FuncCallNode(name, args);
+    }
+
+    public List<Node> parseProgram() {
         List<Node> statements = new ArrayList<>();
 
         while(peek().type != TokenType.EOF){
