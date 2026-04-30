@@ -24,9 +24,21 @@ This produces a jar file in the `target/` directory.
 
 ## Run
 
+**Option 1 — Terminal**
 ```bash
-java -jar target/lang-interpreter-1.0.0.jar
+java -jar target/interpreter-1.0-SNAPSHOT.jar
 ```
+
+**Option 2 — IntelliJ IDEA**
+
+Open the project in IntelliJ IDEA and click the green Run button next to the `main` method in `Main.java`.
+
+**Option 3 — Direct Java (no build needed)**
+```bash
+java src/main/java/org/jetbrains/Main.java
+```
+
+Type your program line by line. When finished, type `quit` on a new line to execute.
 
 Type your program line by line. When finished, type `quit` on a new line to execute it.
 
