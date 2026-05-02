@@ -142,4 +142,8 @@ public class Interpreter {
     private boolean isComparison(String operator) {
         return "==".equals(operator) || "!=".equals(operator) || "<".equals(operator) || ">".equals(operator) || "<=".equals(operator) || ">=".equals(operator);
     }
+
+    public Map<String, Integer> getVariables() {
+        return variables;
+    }
 }
