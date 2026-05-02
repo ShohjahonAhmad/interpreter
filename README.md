@@ -38,7 +38,7 @@ Open the project in IntelliJ IDEA and click the green Run button next to the `ma
 java src/main/java/org/jetbrains/Main.java
 ```
 
-Type your program line by line. When finished, type `quit` on a new line to execute.
+Type your program line by line. When finished, type `quit` on a new line, or submit an empty line to execute.
 
 ## Language Features
 

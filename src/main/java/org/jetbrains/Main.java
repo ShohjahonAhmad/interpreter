@@ -11,9 +11,12 @@ public class Main {
     static void main() {
         Scanner scanner = new Scanner(System.in);
         StringBuilder source = new StringBuilder();
+
+        System.out.println("Enter your code (type 'quit' or press Enter on an empty line to finish):");
+
         while(scanner.hasNextLine()) {
             String input = scanner.nextLine();
-            if("quit".equals(input)) break;
+            if("quit".equals(input) || input.isEmpty()) break;
             source.append(input).append('\n');
         }
 
