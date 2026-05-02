@@ -8,6 +8,8 @@ public enum TokenType {
     STAR,
     SLASH,
     ASSIGN,
+    AND,
+    OR,
     IF,
     FUN,
     WHILE,

@@ -105,6 +105,8 @@ public class Lexer {
             case "return" -> TokenType.RETURN;
             case "true" -> TokenType.TRUE;
             case "false" -> TokenType.FALSE;
+            case "and" -> TokenType.AND;
+            case "or" -> TokenType.OR;
             default -> TokenType.IDENTIFIER;
         };
 

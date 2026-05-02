@@ -132,6 +132,8 @@ public class Interpreter {
     }
 
     private int compute(String operator, int left, int right, int line) {
+        if("and".equals(operator)) return (left != 0 && right != 0) ? 1 : 0;
+        if("or".equals(operator)) return (left != 0 || right != 0) ? 1 : 0;
         if("+".equals(operator)) return left + right;
         if("-".equals(operator)) return left - right;
         if("*".equals(operator)) return left * right;

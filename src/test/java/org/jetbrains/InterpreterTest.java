@@ -94,6 +94,27 @@ public class InterpreterTest {
     }
 
     @Test
+    public void testThatLogicalOperatorsWork() {
+        String source = "x = 1\n" +
+                        "y = 0\n" +
+                        "z = x and y";
+
+        Map<String, Integer> result = run(source);
+        assertEquals(0, result.get("z"));
+        assertEquals(1, result.get("x"));
+        assertEquals(0, result.get("y"));
+
+        source = "x = 1\n"+
+                        "y = 0\n"+
+                        "z = x or y";
+
+        result = run(source);
+        assertEquals(1, result.get("z"));
+        assertEquals(1, result.get("x"));
+        assertEquals(0, result.get("y"));
+    }
+
+    @Test
     public void testThatLexerTokenizesAssignment() {
         Lexer lexer = new Lexer("x = 2");
         List<Token> tokens = lexer.tokenize();
@@ -223,5 +244,7 @@ public class InterpreterTest {
 
         assertThrows(InterpreterException.class, () -> run(source));
     }
+
+
 }
 

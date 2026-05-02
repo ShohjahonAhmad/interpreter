@@ -99,6 +99,21 @@ public class Parser {
         return left;
     }
 
+    private Node parseLogical() {
+        Node left = parseComparison();
+
+        while (peek().type == TokenType.AND || peek().type == TokenType.OR) {
+            int line = peek().line;
+            String op = consume().value;
+            Node right = parseComparison();
+            BinaryOpNode node = new BinaryOpNode(left, op, right);
+            node.line = line;
+            left = node;
+        }
+
+        return left;
+    }
+
     private Node parseComparison() {
         Node left = parseExpression();
 
@@ -128,7 +143,7 @@ public class Parser {
         } else if (peek().type == TokenType.RETURN){
             return parseReturn();
         } else {
-            return parseComparison();
+            return parseLogical();
         }
     }
 
@@ -136,7 +151,7 @@ public class Parser {
         int line = peek().line;
         String name = consume().value;
         consume();
-        Node expr = parseComparison();
+        Node expr = parseLogical();
         AssignNode node = new AssignNode(name, expr);
         node.line = line;
         return node;
@@ -145,7 +160,7 @@ public class Parser {
     private Node parseIf() {
         int line = peek().line;
         consume(); // consume 'if'
-        Node condition = parseComparison();
+        Node condition = parseLogical();
         expect(TokenType.THEN); // consume 'then'
         Node thenBranch = parseStatement();
         if(peek().type == TokenType.ELSE) {
@@ -163,7 +178,7 @@ public class Parser {
     private Node parseWhile() {
         int line = peek().line;
         consume(); // consume 'while'
-        Node condition = parseComparison();
+        Node condition = parseLogical();
         expect(TokenType.DO); // consume 'do'
         List<Node> body = new ArrayList<>();
 
@@ -209,7 +224,7 @@ public class Parser {
     private Node parseReturn() {
         int line = peek().line;
         consume(); // consume 'return'
-        Node value = parseComparison();
+        Node value = parseLogical();
         ReturnNode node = new ReturnNode(value);
         node.line = line;
         return node;
@@ -221,10 +236,10 @@ public class Parser {
         consume(); // consume '('
         List<Node> args = new ArrayList<>();
         if(peek().type != TokenType.R_PAREN){
-            args.add(parseComparison());
+            args.add(parseLogical());
             while(peek().type == TokenType.COMMA) {
                 consume(); // consume the comma before parsing next argument
-                args.add(parseComparison());
+                args.add(parseLogical());
             }
         }
         expect(TokenType.R_PAREN); // consume ')'
