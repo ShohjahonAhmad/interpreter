@@ -62,7 +62,7 @@ public class Lexer {
 
     ///  TOKEN CHECK METHODS
     public boolean isIdentifier(char c) {
-        return Character.isLetter(c) || c == '_';
+        return Character.isLetterOrDigit(c) || c == '_';
     }
 
     public boolean isWhiteSpace(char c) {

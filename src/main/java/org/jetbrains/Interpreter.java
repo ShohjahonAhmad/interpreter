@@ -20,7 +20,7 @@ public class Interpreter {
         if(node instanceof NumberNode n){
             return n.value;
         } else if (node instanceof IdentifierNode n){
-            if(!variables.containsKey(n.name)) throw new RuntimeException("Undefined variable: " + n.name);
+            if(!variables.containsKey(n.name)) throw new InterpreterException("Undefined variable: " + n.name);
             return variables.get(n.name);
         } else if(node instanceof AssignNode n){
             return getResultOfAssignNode(n);
@@ -135,7 +135,10 @@ public class Interpreter {
         if("+".equals(operator)) return left + right;
         if("-".equals(operator)) return left - right;
         if("*".equals(operator)) return left * right;
-        if("/".equals(operator)) return left / right;
+        if("/".equals(operator)) {
+            if(right == 0) throw new InterpreterException("Division by zero");
+            return left / right;
+        }
         throw new InterpreterException("Unknown operator: " + operator);
     }
 
