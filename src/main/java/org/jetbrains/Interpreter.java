@@ -20,7 +20,7 @@ public class Interpreter {
         if(node instanceof NumberNode n){
             return n.value;
         } else if (node instanceof IdentifierNode n){
-            if(!variables.containsKey(n.name)) throw new InterpreterException("Undefined variable: " + n.name);
+            if(!variables.containsKey(n.name)) throw new InterpreterException("[Line " + n.line + "] Undefined variable: " + n.name);
             return variables.get(n.name);
         } else if(node instanceof AssignNode n){
             return getResultOfAssignNode(n);
@@ -76,10 +76,10 @@ public class Interpreter {
     }
 
     private int getResultOfFuncCallNode(FuncCallNode n){
-        if(!functions.containsKey(n.name)) throw new InterpreterException("Undefined function: " + n.name);
+        if(!functions.containsKey(n.name)) throw new InterpreterException("[Line " + n.line + "] Undefined function: " + n.name);
         FuncNode func = functions.get(n.name);
 
-        if(func.params.size() != n.args.size()) throw new InterpreterException("Argument count mismatch for function: " + n.name);
+        if(func.params.size() != n.args.size()) throw new InterpreterException("[Line " + n.line + "] Argument count mismatch for function: " + n.name);
 
         List<Integer> args = new ArrayList<>();
         for(int i = 0; i < func.params.size(); i++){
@@ -114,32 +114,32 @@ public class Interpreter {
 
         int result;
         if(isComparison(n.operator)){
-            result = compare(n.operator, left, right) ? 1 : 0;
+            result = compare(n.operator, left, right, n.line) ? 1 : 0;
         } else {
-            result = compute(n.operator, left, right);
+            result = compute(n.operator, left, right, n.line);
         }
         return result;
     }
 
-    private boolean compare(String operator, int left, int right) {
+    private boolean compare(String operator, int left, int right, int line) {
         if("==".equals(operator)) return left == right;
         if(">=".equals(operator)) return left >= right;
         if("<=".equals(operator)) return left <= right;
         if("!=".equals(operator)) return left != right;
         if(">".equals(operator)) return left > right;
         if("<".equals(operator)) return left < right;
-        throw new InterpreterException("Unknown operator: " + operator);
+        throw new InterpreterException("[Line " + line+ "] Unknown operator: " + operator);
     }
 
-    private int compute(String operator, int left, int right) {
+    private int compute(String operator, int left, int right, int line) {
         if("+".equals(operator)) return left + right;
         if("-".equals(operator)) return left - right;
         if("*".equals(operator)) return left * right;
         if("/".equals(operator)) {
-            if(right == 0) throw new InterpreterException("Division by zero");
+            if(right == 0) throw new InterpreterException("[Line " + line+ "] Division by zero");
             return left / right;
         }
-        throw new InterpreterException("Unknown operator: " + operator);
+        throw new InterpreterException("[Line " + line+ "] Unknown operator: " + operator);
     }
 
     private boolean isComparison(String operator) {

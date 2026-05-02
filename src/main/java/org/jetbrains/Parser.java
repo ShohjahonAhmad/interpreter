@@ -30,26 +30,35 @@ public class Parser {
     private Token expect(TokenType type) {
         Token token = consume();
         if(token.type != type) {
-            throw new ParseException("Expected " + type + " but got" + token.type);
+            throw new ParseException("[Line " + token.line + "] Expected " + type + " but got" + token.type);
         }
 
         return token;
     }
 
     private Node parsePrimary() {
+        int line = peek().line;
         if(peek().type == TokenType.NUMBER){
-            return new NumberNode(Integer.parseInt(consume().value));
+            NumberNode node = new NumberNode(Integer.parseInt(consume().value));
+            node.line = line;
+            return node;
         } else if(peek().type == TokenType.TRUE){
             consume();
-            return new NumberNode(1);
+            NumberNode node = new NumberNode(1);
+            node.line = line;
+            return node;
         } else if(peek().type == TokenType.FALSE){
             consume();
-            return new NumberNode(0);
+            NumberNode node = new NumberNode(0);
+            node.line = line;
+            return node;
         }
         else if (peek().type == TokenType.IDENTIFIER && peekNext().type == TokenType.L_PAREN) {
             return parseFuncCall();
         } else if (peek().type == TokenType.IDENTIFIER) {
-            return new IdentifierNode(consume().value);
+            IdentifierNode node = new IdentifierNode(consume().value);
+            node.line = line;
+            return node;
         } else if (peek().type == TokenType.L_PAREN) {
             consume(); // consume '('
             Node expr = parseExpression();
@@ -57,16 +66,19 @@ public class Parser {
             return expr;
         }
 
-        throw new ParseException("Unexpected token: " + peek());
+        throw new ParseException("[Line " + peek().line + "] Unexpected token: " + peek());
     }
 
     private Node parseTerm() {
         Node left = parsePrimary();
 
         while(peek().type == TokenType.STAR || peek().type == TokenType.SLASH) {
+            int line = peek().line;
             String op = consume().value;
             Node right = parsePrimary();
-            left = new BinaryOpNode(left, op, right);
+            BinaryOpNode node = new BinaryOpNode(left, op, right);
+            node.line = line;
+            left = node;
         }
 
         return left;
@@ -76,9 +88,12 @@ public class Parser {
         Node left = parseTerm();
 
         while(peek().type == TokenType.PLUS || peek().type == TokenType.MINUS) {
+            int line = peek().line;
             String op = consume().value;
             Node right = parseTerm();
-            left = new BinaryOpNode(left, op, right);
+            BinaryOpNode node = new BinaryOpNode(left, op, right);
+            node.line = line;
+            left = node;
         }
 
         return left;
@@ -88,9 +103,12 @@ public class Parser {
         Node left = parseExpression();
 
         if(isComparison()) {
+            int line = peek().line;
             String op = consume().value;
             Node right = parseExpression();
-            left = new BinaryOpNode(left, op, right);
+            BinaryOpNode node = new BinaryOpNode(left, op, right);
+            node.line = line;
+            left = node;
         }
 
         return left;
@@ -115,13 +133,17 @@ public class Parser {
     }
 
     private Node parseAssign() {
+        int line = peek().line;
         String name = consume().value;
         consume();
         Node expr = parseComparison();
-        return new AssignNode(name, expr);
+        AssignNode node = new AssignNode(name, expr);
+        node.line = line;
+        return node;
     }
 
     private Node parseIf() {
+        int line = peek().line;
         consume(); // consume 'if'
         Node condition = parseComparison();
         expect(TokenType.THEN); // consume 'then'
@@ -129,13 +151,17 @@ public class Parser {
         if(peek().type == TokenType.ELSE) {
             consume(); // consume 'else'
             Node elseBranch = parseStatement();
-            return new IfNode(condition, thenBranch, elseBranch);
+            IfNode node = new IfNode(condition, thenBranch, elseBranch);
+            node.line = line;
+            return node;
         }
-
-        return new IfNode(condition, thenBranch);
+        IfNode node = new IfNode(condition, thenBranch);
+        node.line = line;
+        return node;
     }
 
     private Node parseWhile() {
+        int line = peek().line;
         consume(); // consume 'while'
         Node condition = parseComparison();
         expect(TokenType.DO); // consume 'do'
@@ -146,11 +172,13 @@ public class Parser {
             consume(); // consume the comma before parsing next statement
             body.add(parseStatement());
         }
-
-        return new WhileNode(condition, body);
+        WhileNode node = new WhileNode(condition, body);
+        node.line = line;
+        return node;
     }
 
     private Node parseFunc() {
+        int line = peek().line;
         consume(); // consume 'func'
         String name = consume().value;
         expect(TokenType.L_PAREN); // consume '('
@@ -173,17 +201,22 @@ public class Parser {
             }
         }
         expect(TokenType.R_BRACE); // consume '}'
-
-        return new FuncNode(name, params, body);
+        FuncNode node = new FuncNode(name, params, body);
+        node.line = line;
+        return node;
     }
 
     private Node parseReturn() {
+        int line = peek().line;
         consume(); // consume 'return'
         Node value = parseComparison();
-        return new ReturnNode(value);
+        ReturnNode node = new ReturnNode(value);
+        node.line = line;
+        return node;
     }
 
     private Node parseFuncCall(){
+        int line = peek().line;;
         String name = consume().value;
         consume(); // consume '('
         List<Node> args = new ArrayList<>();
@@ -195,7 +228,9 @@ public class Parser {
             }
         }
         expect(TokenType.R_PAREN); // consume ')'
-        return new FuncCallNode(name, args);
+        FuncCallNode node = new FuncCallNode(name, args);
+        node.line = line;
+        return node;
     }
 
     public List<Node> parseProgram() {

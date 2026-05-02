@@ -7,6 +7,7 @@ public class Lexer {
 
     private final String source;
     private int pos = 0;
+    private int line = 1;
 
     public Lexer(String source) {
          this.source = source;
@@ -24,26 +25,27 @@ public class Lexer {
                 tokens.add(getIdentifierOrKeywordToken());
             } else if (isWhiteSpace(c)){
                 // skip whitespace
+                if(c == '\n') line++;
             } else if (c == '+') {
-                tokens.add(new Token(TokenType.PLUS, "+"));
+                tokens.add(new Token(TokenType.PLUS, "+", line));
             } else if (c == '-') {
-                tokens.add(new Token(TokenType.MINUS, "-"));
+                tokens.add(new Token(TokenType.MINUS, "-", line));
             } else if (c == '*') {
-                tokens.add(new Token(TokenType.STAR, "*"));
+                tokens.add(new Token(TokenType.STAR, "*", line));
             } else if (c == '/') {
-                tokens.add(new Token(TokenType.SLASH, "/"));
+                tokens.add(new Token(TokenType.SLASH, "/", line));
             } else if (c == '=') {
                 tokens.add(getAssignOrEqualToken());
             } else if (c == '(') {
-                tokens.add(new Token(TokenType.L_PAREN, "("));
+                tokens.add(new Token(TokenType.L_PAREN, "(", line));
             } else if (c == ')') {
-                tokens.add(new Token(TokenType.R_PAREN, ")"));
+                tokens.add(new Token(TokenType.R_PAREN, ")", line));
             } else if (c == '{') {
-                tokens.add(new Token(TokenType.L_BRACE, "{"));
+                tokens.add(new Token(TokenType.L_BRACE, "{", line));
             } else if (c == '}') {
-                tokens.add(new Token(TokenType.R_BRACE, "}"));
+                tokens.add(new Token(TokenType.R_BRACE, "}", line));
             } else if (c == ',') {
-                tokens.add(new Token(TokenType.COMMA, ","));
+                tokens.add(new Token(TokenType.COMMA, ",", line));
             } else if (c == '<'){
                 tokens.add(getLessThanOrLessThanEqualToken());
             } else if (c == '>'){
@@ -55,7 +57,7 @@ public class Lexer {
             pos++;
         }
 
-        tokens.add(new Token(TokenType.EOF, ""));
+        tokens.add(new Token(TokenType.EOF, "", line));
         return tokens;
     }
 
@@ -80,7 +82,7 @@ public class Lexer {
             number.append(source.charAt(pos));
         }
 
-        return new Token(TokenType.NUMBER, number.toString());
+        return new Token(TokenType.NUMBER, number.toString(), line);
     }
 
     public Token getIdentifierOrKeywordToken() {
@@ -106,37 +108,37 @@ public class Lexer {
             default -> TokenType.IDENTIFIER;
         };
 
-        return new Token(type, word);
+        return new Token(type, word, line);
     }
 
     public Token getAssignOrEqualToken() {
         if(pos + 1 < source.length() && source.charAt(pos + 1) == '=') {
             pos++; // skip the next '='
-            return new Token(TokenType.EQ_EQ, "==");
+            return new Token(TokenType.EQ_EQ, "==", line);
         }
-        return new Token(TokenType.ASSIGN, "=");
+        return new Token(TokenType.ASSIGN, "=", line);
     }
 
     public Token getLessThanOrLessThanEqualToken() {
         if(pos + 1 < source.length() && source.charAt(pos + 1) == '=') {
             pos++; // skip the next '='
-            return new Token(TokenType.LT_EQ, "<=");
+            return new Token(TokenType.LT_EQ, "<=", line);
         }
-        return new Token(TokenType.LT, "<");
+        return new Token(TokenType.LT, "<", line);
     }
 
     public Token getGreaterThanOrGreaterThanEqualToken() {
         if(pos + 1 < source.length() && source.charAt(pos + 1) == '=') {
             pos++; // skip the next '='
-            return new Token(TokenType.GT_EQ, ">=");
+            return new Token(TokenType.GT_EQ, ">=", line);
         }
-        return new Token(TokenType.GT, ">");
+        return new Token(TokenType.GT, ">", line);
     }
 
     public Token getNotEqualToken() {
         if(pos + 1 < source.length() && source.charAt(pos + 1) == '=') {
             pos++; // skip the next '='
-            return new Token(TokenType.NOT_EQ, "!=");
+            return new Token(TokenType.NOT_EQ, "!=", line);
         }
 
         throw new RuntimeException("Invalid syntax");

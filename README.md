@@ -120,3 +120,31 @@ The interpreter throws descriptive errors for:
 - Argument count mismatch
 - Invalid syntax
 - Unknown operators
+
+The interpreter throws descriptive errors with line numbers for:
+- `[Line 2] Undefined variable: 'x'`
+- `[Line 3] Undefined function: 'foo'`
+- `[Line 1] Division by zero`
+- `[Line 2] Argument count mismatch for function: 'add'`
+- `[Line 4] Invalid syntax: unexpected token '}'`
+
+## Tests
+
+The project includes unit and integration tests written with JUnit 5.
+
+Run tests:
+```bash
+mvn test
+```
+
+**Integration tests** — verify all sample programs produce correct output:
+- Arithmetic and variable assignment
+- If/else branching
+- While loops
+- Function calls
+- Recursive functions
+- Iterative functions
+
+**Unit tests** — verify individual components:
+- Lexer tokenization of identifiers, numbers, keywords, operators
+- Error cases — undefined variables, undefined functions, argument mismatch, division by zero, invalid syntax
