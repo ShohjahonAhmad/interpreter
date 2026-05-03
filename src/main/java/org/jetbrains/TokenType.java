@@ -1,35 +1,54 @@
 package org.jetbrains;
 
+/**
+ * All token types recognized by the Lexer and used by the Parser.
+ */
 public enum TokenType {
+
+    // Literals
     NUMBER,
     IDENTIFIER,
-    PLUS,
-    MINUS,
-    STAR,
-    SLASH,
-    MODULO,
-    ASSIGN,
-    AND,
-    OR,
+    TRUE,       // true
+    FALSE,      // false
+
+    // Arithmetic operators
+    PLUS,       // +
+    MINUS,      // -
+    STAR,       // *
+    SLASH,      // /
+    MODULO,     // %
+
+    // Comparison operators
+    NOT_EQ,     // ==
+    EQ_EQ,      // !=
+    LT,         // <
+    LT_EQ,      // <=
+    GT,         // >
+    GT_EQ,      // >=
+
+    // Logical operators
+    AND,        // and
+    OR,         // or
+
+    // Assignment
+    ASSIGN,     // =
+
+    // Keywords
     IF,
-    FUN,
+    THEN,
+    ELSE,
     WHILE,
     DO,
-    EOF, // end of program
-    TRUE,
-    FALSE,
-    THEN,
+    FUN,
     RETURN,
-    ELSE,
-    NOT_EQ, // is not equal
-    EQ_EQ, // is equal
-    LT, // less than
-    LT_EQ, // less than or equal
-    GT, // greater
-    GT_EQ, // greater than or equal
+
+    // Delimiters
+    L_PAREN,    // (
+    R_PAREN,    // )
+    L_BRACE,    // {
+    R_BRACE,    // }
     COMMA,
-    L_PAREN, // left parenthesis
-    R_PAREN, // right parenthesis
-    L_BRACE, // left brace
-    R_BRACE, // right brace
+
+    // Special
+    EOF,        // End Of Program
 }

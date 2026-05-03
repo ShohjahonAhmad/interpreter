@@ -1,8 +1,14 @@
 package org.jetbrains;
 
+import org.jetbrains.exception.ParseException;
+
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Lexer converts raw source code into a list tokens.<br>
+ * Tracks line number for error reporting.
+ */
 public class Lexer {
 
     private final String source;
@@ -54,6 +60,8 @@ public class Lexer {
                 tokens.add(getNotEqualToken());
             } else if (c == '%'){
                 tokens.add(new Token(TokenType.MODULO, "%", line));
+            } else {
+                throw new ParseException("[Line " + line + "] Unexpected character: '" + c + "'");
             }
 
             pos++;
@@ -65,17 +73,17 @@ public class Lexer {
 
 
     ///  TOKEN CHECK METHODS
-    public boolean isIdentifier(char c) {
+    private boolean isIdentifier(char c) {
         return Character.isLetterOrDigit(c) || c == '_';
     }
 
-    public boolean isWhiteSpace(char c) {
+    private boolean isWhiteSpace(char c) {
         return c == ' ' || c == '\t' || c == '\n' || c == '\r';
     }
 
 
     /// GETTING TOKEN METHODS
-    public Token getNumberToken() {
+    private Token getNumberToken() {
         StringBuilder number = new StringBuilder();
         number.append(source.charAt(pos));
 
@@ -87,7 +95,7 @@ public class Lexer {
         return new Token(TokenType.NUMBER, number.toString(), line);
     }
 
-    public Token getIdentifierOrKeywordToken() {
+    private Token getIdentifierOrKeywordToken() {
         StringBuilder identifier = new StringBuilder();
         identifier.append(source.charAt(pos));
 
@@ -115,7 +123,7 @@ public class Lexer {
         return new Token(type, word, line);
     }
 
-    public Token getAssignOrEqualToken() {
+    private Token getAssignOrEqualToken() {
         if(pos + 1 < source.length() && source.charAt(pos + 1) == '=') {
             pos++; // skip the next '='
             return new Token(TokenType.EQ_EQ, "==", line);
@@ -123,7 +131,7 @@ public class Lexer {
         return new Token(TokenType.ASSIGN, "=", line);
     }
 
-    public Token getLessThanOrLessThanEqualToken() {
+    private Token getLessThanOrLessThanEqualToken() {
         if(pos + 1 < source.length() && source.charAt(pos + 1) == '=') {
             pos++; // skip the next '='
             return new Token(TokenType.LT_EQ, "<=", line);
@@ -131,7 +139,7 @@ public class Lexer {
         return new Token(TokenType.LT, "<", line);
     }
 
-    public Token getGreaterThanOrGreaterThanEqualToken() {
+    private Token getGreaterThanOrGreaterThanEqualToken() {
         if(pos + 1 < source.length() && source.charAt(pos + 1) == '=') {
             pos++; // skip the next '='
             return new Token(TokenType.GT_EQ, ">=", line);
@@ -139,13 +147,13 @@ public class Lexer {
         return new Token(TokenType.GT, ">", line);
     }
 
-    public Token getNotEqualToken() {
+    private Token getNotEqualToken() {
         if(pos + 1 < source.length() && source.charAt(pos + 1) == '=') {
             pos++; // skip the next '='
             return new Token(TokenType.NOT_EQ, "!=", line);
         }
 
-        throw new RuntimeException("Invalid syntax");
+        throw new ParseException("[Line " + line + "] Invalid syntax");
     }
 
 }

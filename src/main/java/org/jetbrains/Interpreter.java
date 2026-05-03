@@ -6,6 +6,12 @@ import org.jetbrains.node.*;
 
 import java.util.*;
 
+/**
+ * Interpreter — walks the AST and executes each statement. <br>
+ * Maintains a map of variables (name → value) and function definitions. <br>
+ * Function calls create an isolated variable scope to support recursion. <br>
+ * Return statements are implemented by throwing a ReturnException to unwind the call stack.
+ */
 public class Interpreter {
     private final Map<String, Integer> variables = new LinkedHashMap<>();
     private final Map<String, FuncNode> functions = new HashMap<>();
@@ -42,9 +48,7 @@ public class Interpreter {
     }
 
     public void printVariables() {
-        for(String key : variables.keySet()){
-            System.out.println(key + ": " + variables.get(key));
-        }
+        variables.forEach((name, value) -> System.out.println(name + ": " + value));
     }
 
     private int getResultOfAssignNode(AssignNode n){
@@ -128,12 +132,12 @@ public class Interpreter {
         if("!=".equals(operator)) return left != right;
         if(">".equals(operator)) return left > right;
         if("<".equals(operator)) return left < right;
+        if("and".equals(operator)) return left != 0 && right != 0;
+        if("or".equals(operator)) return left != 0 || right != 0;
         throw new InterpreterException("[Line " + line+ "] Unknown operator: " + operator);
     }
 
     private int compute(String operator, int left, int right, int line) {
-        if("and".equals(operator)) return (left != 0 && right != 0) ? 1 : 0;
-        if("or".equals(operator)) return (left != 0 || right != 0) ? 1 : 0;
         if("+".equals(operator)) return left + right;
         if("-".equals(operator)) return left - right;
         if("*".equals(operator)) return left * right;
@@ -146,7 +150,10 @@ public class Interpreter {
     }
 
     private boolean isComparison(String operator) {
-        return "==".equals(operator) || "!=".equals(operator) || "<".equals(operator) || ">".equals(operator) || "<=".equals(operator) || ">=".equals(operator);
+        return "==".equals(operator) || "!=".equals(operator) ||
+                "<".equals(operator) || ">".equals(operator) ||
+                "<=".equals(operator) || ">=".equals(operator) ||
+                "and".equals(operator) || "or".equals(operator);
     }
 
     public Map<String, Integer> getVariables() {

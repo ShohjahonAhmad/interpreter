@@ -6,6 +6,15 @@ import org.jetbrains.node.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Parser converts list of tokens into Abstract Syntax Tree (AST). <br>
+ * Uses recursive descent parsing to with following order: <br>
+ *  parseLogical()      -> and, or
+ *  parseComparison()   -> ==, !=, <, <=, >, >=
+ *  parseExpression()   -> +, -
+ *  parseTerm()         -> *, /, %
+ *  parsePrimary()      -> numbers, identifiers, function calls, parentheses
+ */
 public class Parser {
     private final List<Token> tokens;
     private int pos = 0;
@@ -30,8 +39,23 @@ public class Parser {
     private void expect(TokenType type) {
         Token token = consume();
         if(token.type != type) {
-            throw new ParseException("[Line " + token.line + "] Expected " + type + " but got" + token.type);
+            throw new ParseException("[Line " + token.line + "] Expected " + type + " but got " + token.type);
         }
+    }
+
+    /**
+     * Parses tokens into list of statements in the program. <br>
+     * Called with tokenized the source code
+     * @return a list of statements
+     */
+    public List<Node> parseProgram() {
+        List<Node> statements = new ArrayList<>();
+
+        while(peek().type != TokenType.EOF){
+            statements.add(parseStatement());
+        }
+
+        return statements;
     }
 
     private Node parsePrimary() {
@@ -41,17 +65,17 @@ public class Parser {
             node.line = line;
             return node;
         } else if(peek().type == TokenType.TRUE){
-            consume();
+            expect(TokenType.TRUE); // consume 'true'
             NumberNode node = new NumberNode(1);
             node.line = line;
             return node;
         } else if(peek().type == TokenType.FALSE){
-            consume();
+            expect(TokenType.FALSE); // consume 'false'
             NumberNode node = new NumberNode(0);
             node.line = line;
             return node;
         } else if(peek().type == TokenType.MINUS) {
-            consume(); // consume '-'
+            expect(TokenType.MINUS); // consume '-'
             Node operand = parsePrimary();
             BinaryOpNode node = new BinaryOpNode(new NumberNode(0), "-", operand);
             node.line = line;
@@ -64,7 +88,7 @@ public class Parser {
             node.line = line;
             return node;
         } else if (peek().type == TokenType.L_PAREN) {
-            consume(); // consume '('
+            expect(TokenType.L_PAREN); // consume '('
             Node expr = parseExpression();
             expect(TokenType.R_PAREN); // consume ')'
             return expr;
@@ -103,21 +127,6 @@ public class Parser {
         return left;
     }
 
-    private Node parseLogical() {
-        Node left = parseComparison();
-
-        while (peek().type == TokenType.AND || peek().type == TokenType.OR) {
-            int line = peek().line;
-            String op = consume().value;
-            Node right = parseComparison();
-            BinaryOpNode node = new BinaryOpNode(left, op, right);
-            node.line = line;
-            left = node;
-        }
-
-        return left;
-    }
-
     private Node parseComparison() {
         Node left = parseExpression();
 
@@ -133,6 +142,25 @@ public class Parser {
         return left;
     }
 
+    private Node parseLogical() {
+        Node left = parseComparison();
+
+        while (peek().type == TokenType.AND || peek().type == TokenType.OR) {
+            int line = peek().line;
+            String op = consume().value;
+            Node right = parseComparison();
+            BinaryOpNode node = new BinaryOpNode(left, op, right);
+            node.line = line;
+            left = node;
+        }
+
+        return left;
+    }
+
+    /**
+     * Checks first token of the statement and choose correct parser
+     * @return
+     */
     private Node parseStatement() {
         if(peek().type == TokenType.FUN) {
             return parseFunc();
@@ -154,7 +182,7 @@ public class Parser {
     private Node parseAssign() {
         int line = peek().line;
         String name = consume().value;
-        consume();
+        expect(TokenType.ASSIGN); // consume '='
         Node expr = parseLogical();
         AssignNode node = new AssignNode(name, expr);
         node.line = line;
@@ -163,12 +191,12 @@ public class Parser {
 
     private Node parseIf() {
         int line = peek().line;
-        consume(); // consume 'if'
+        expect(TokenType.IF); // consume 'if'
         Node condition = parseLogical();
         expect(TokenType.THEN); // consume 'then'
         Node thenBranch = parseStatement();
         if(peek().type == TokenType.ELSE) {
-            consume(); // consume 'else'
+            expect(TokenType.ELSE); // consume 'else'
             Node elseBranch = parseStatement();
             IfNode node = new IfNode(condition, thenBranch, elseBranch);
             node.line = line;
@@ -181,14 +209,14 @@ public class Parser {
 
     private Node parseWhile() {
         int line = peek().line;
-        consume(); // consume 'while'
+        expect(TokenType.WHILE); // consume 'while'
         Node condition = parseLogical();
         expect(TokenType.DO); // consume 'do'
         List<Node> body = new ArrayList<>();
 
         body.add(parseStatement());
         while (peek().type == TokenType.COMMA){
-            consume(); // consume the comma before parsing next statement
+            expect(TokenType.COMMA); // consume the comma before parsing next statement
             body.add(parseStatement());
         }
         WhileNode node = new WhileNode(condition, body);
@@ -198,14 +226,14 @@ public class Parser {
 
     private Node parseFunc() {
         int line = peek().line;
-        consume(); // consume 'func'
+        expect(TokenType.FUN); // consume 'fun'
         String name = consume().value;
         expect(TokenType.L_PAREN); // consume '('
         List<String> params = new ArrayList<>();
         if(peek().type != TokenType.R_PAREN){
             params.add(consume().value);
             while(peek().type == TokenType.COMMA){
-                consume(); // consume the comma before parsing next parameter
+                expect(TokenType.COMMA); // consume the comma before parsing next parameter
                 params.add(consume().value);
             }
         }
@@ -215,7 +243,7 @@ public class Parser {
         if(peek().type != TokenType.R_BRACE){
             body.add(parseStatement());
             while (peek().type == TokenType.COMMA){
-                consume(); // consume the comma before parsing next statement
+                expect(TokenType.COMMA); // consume the comma before parsing next statement
                 body.add(parseStatement());
             }
         }
@@ -227,7 +255,7 @@ public class Parser {
 
     private Node parseReturn() {
         int line = peek().line;
-        consume(); // consume 'return'
+        expect(TokenType.RETURN); // consume 'return'
         Node value = parseLogical();
         ReturnNode node = new ReturnNode(value);
         node.line = line;
@@ -235,14 +263,14 @@ public class Parser {
     }
 
     private Node parseFuncCall(){
-        int line = peek().line;;
+        int line = peek().line;
         String name = consume().value;
-        consume(); // consume '('
+        expect(TokenType.L_PAREN); // consume '('
         List<Node> args = new ArrayList<>();
         if(peek().type != TokenType.R_PAREN){
             args.add(parseLogical());
             while(peek().type == TokenType.COMMA) {
-                consume(); // consume the comma before parsing next argument
+                expect(TokenType.COMMA); // consume the comma before parsing next argument
                 args.add(parseLogical());
             }
         }
@@ -251,17 +279,6 @@ public class Parser {
         node.line = line;
         return node;
     }
-
-    public List<Node> parseProgram() {
-        List<Node> statements = new ArrayList<>();
-
-        while(peek().type != TokenType.EOF){
-            statements.add(parseStatement());
-        }
-
-        return statements;
-    }
-
 
     private boolean isComparison() {
         return  peek().type == TokenType.LT || peek().type == TokenType.LT_EQ ||
