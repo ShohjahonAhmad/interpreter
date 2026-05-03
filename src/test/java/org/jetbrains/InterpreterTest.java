@@ -30,6 +30,17 @@ public class InterpreterTest {
     }
 
     @Test
+    public void testThatModuloOperatorWorks() {
+        String source = "x = 43 % 10\n" +
+                        "y = x % 3";
+
+        Map<String, Integer> result = run(source);
+
+        assertEquals(3, result.get("x"));
+        assertEquals(0, result.get("y"));
+    }
+
+    @Test
     public void testThatIfThenBodyExecutedWhenTrue() {
         String source = "x = 20\n" +
                         "if x > 10 then y = 100 else y = 0";

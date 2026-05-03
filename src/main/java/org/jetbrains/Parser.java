@@ -72,7 +72,7 @@ public class Parser {
     private Node parseTerm() {
         Node left = parsePrimary();
 
-        while(peek().type == TokenType.STAR || peek().type == TokenType.SLASH) {
+        while(peek().type == TokenType.STAR || peek().type == TokenType.SLASH || peek().type == TokenType.MODULO) {
             int line = peek().line;
             String op = consume().value;
             Node right = parsePrimary();

@@ -52,6 +52,8 @@ public class Lexer {
                 tokens.add(getGreaterThanOrGreaterThanEqualToken());
             } else if (c == '!'){
                 tokens.add(getNotEqualToken());
+            } else if (c == '%'){
+                tokens.add(new Token(TokenType.MODULO, "%", line));
             }
 
             pos++;

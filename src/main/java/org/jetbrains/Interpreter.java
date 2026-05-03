@@ -141,6 +141,7 @@ public class Interpreter {
             if(right == 0) throw new InterpreterException("[Line " + line+ "] Division by zero");
             return left / right;
         }
+        if("%".equals(operator)) return left % right;
         throw new InterpreterException("[Line " + line+ "] Unknown operator: " + operator);
     }
 

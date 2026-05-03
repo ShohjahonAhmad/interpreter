@@ -14,6 +14,6 @@ public class Token {
 
      @Override
      public String toString() {
-        return "Type: " + type + ", Value: " + value + ", Line: " + line;
+        return "Type: " + type + ", Value: " + value;
      }
 }
