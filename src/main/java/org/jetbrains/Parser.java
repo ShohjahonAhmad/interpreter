@@ -27,13 +27,11 @@ public class Parser {
         return tokens.get(pos++);
     }
 
-    private Token expect(TokenType type) {
+    private void expect(TokenType type) {
         Token token = consume();
         if(token.type != type) {
             throw new ParseException("[Line " + token.line + "] Expected " + type + " but got" + token.type);
         }
-
-        return token;
     }
 
     private Node parsePrimary() {
@@ -50,6 +48,12 @@ public class Parser {
         } else if(peek().type == TokenType.FALSE){
             consume();
             NumberNode node = new NumberNode(0);
+            node.line = line;
+            return node;
+        } else if(peek().type == TokenType.MINUS) {
+            consume(); // consume '-'
+            Node operand = parsePrimary();
+            BinaryOpNode node = new BinaryOpNode(new NumberNode(0), "-", operand);
             node.line = line;
             return node;
         }

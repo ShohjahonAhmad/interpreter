@@ -125,6 +125,16 @@ public class InterpreterTest {
         assertEquals(0, result.get("y"));
     }
 
+    @Test void testThatNegativeNumbersWork() {
+        String source = "x = -5\n" +
+                        "y = -x\n" +
+                        "z = -5 * 2";
+
+        Map<String, Integer> result = run(source);
+        assertEquals(-5, result.get("x"));
+        assertEquals(5, result.get("y"));
+        assertEquals(-10, result.get("z"));
+    }
     @Test
     public void testThatLexerTokenizesAssignment() {
         Lexer lexer = new Lexer("x = 2");
