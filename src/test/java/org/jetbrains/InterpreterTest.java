@@ -135,6 +135,7 @@ public class InterpreterTest {
         assertEquals(5, result.get("y"));
         assertEquals(-10, result.get("z"));
     }
+
     @Test
     public void testThatLexerTokenizesAssignment() {
         Lexer lexer = new Lexer("x = 2");
@@ -265,7 +266,5 @@ public class InterpreterTest {
 
         assertThrows(InterpreterException.class, () -> run(source));
     }
-
-
 }
 

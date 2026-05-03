@@ -46,6 +46,9 @@ Type your program line by line. When finished, type `quit` on a new line, or sub
 |---|---|
 | Variable assignment | `x = 2` |
 | Arithmetic | `y = (x + 2) * 2` |
+| Negative numbers | `x = -5` or `y = -x` |
+| Logical operators | `x and y`, `x or y` |
+| Modulo | `x % y` |
 | If / else | `if x > 10 then y = 1 else y = 0` |
 | While loop | `while x < 3 do x = x + 1` |
 | Multiple statements | `stmt1, stmt2, stmt3` |
@@ -56,7 +59,7 @@ Type your program line by line. When finished, type `quit` on a new line, or sub
 
 ### Operators
 
-- Arithmetic: `+`, `-`, `*`, `/`
+- Arithmetic: `+`, `-`, `*`, `/`, `%`
 - Comparison: `==`, `!=`, `<`, `<=`, `>`, `>=`
 
 ### Operator Precedence (highest to lowest)
